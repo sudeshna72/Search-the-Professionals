@@ -1,4 +1,5 @@
 import {Schema, model} from 'mongoose';
+import ExperienceSchema from './experience.model.js';
 
 const userSchema = new Schema({
     email:{
@@ -16,17 +17,38 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now
     },
-
+    profile:{
+        type: String,
+        default: undefined
+    },
     profileCompleted:{
         type: Boolean,
         default: false,
+    },
+    ProfilePicture:{
+        url:{
+            type:String,
+        }
     },
 
     category:{
         type: String,
         enum:["App Development", "Web Development", "Data Science", "Machine Learning", "UI/UX Design", "Cyber Security"],
         default:undefined
-    }
+    },
+
+    skills: {
+    type: [String],
+    default: undefined
+  },
+
+  about: {
+    type: String,
+    default: undefined
+  },
+
+
+  experiences: [ExperienceSchema],
 
 });
 

@@ -1,0 +1,126 @@
+.profile-section {
+  margin-bottom: 20px;
+}
+
+/* Header */
+.skills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  font-size: 17px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: #0a66c2;
+}
+
+.icon-btn.active {
+  color: #1259e6;
+}
+
+.icon-btn.small {
+  font-size: 14px;
+}
+
+/* Skills list */
+.skills-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.skill-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  color:black;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-content input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.modal-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.error-text {
+  color: red;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.modal-actions button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modal-actions .delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.modal-actions button:last-child {
+  background-color: #0a66c2;
+  color: white;
+}
+
+.modal-actions button:first-child {
+  background-color: #6c757d;
+  color: white;
+}
