@@ -101,20 +101,34 @@ useEffect(() => {
       
 
       {/* About Section */}
-      <About
-         aboutText={userData?.about}
-        isCurrentUser={isCurrentUser}
-      onSave={async (newAbout: any) => {
-       
-        try {
-          await updateProfile(profileUserId!, { about: newAbout });
-         
-          setUserData((prev: any) => (prev ? { ...prev, about: newAbout } : null));
-        } catch (error) {
-          console.error('Failed to update about:', error);
-        }
-      }}
-    />
+    {/* About Section */}
+<About
+  aboutText={userData?.about}
+  isCurrentUser={isCurrentUser}
+  onSave={async (newAbout: string) => {
+    try {
+      // ✅ Save or update about text
+      await updateProfile(profileUserId!, { about: newAbout });
+      setUserData((prev: any) =>
+        prev ? { ...prev, about: newAbout } : null
+      );
+    } catch (error) {
+      console.error("Failed to update about:", error);
+    }
+  }}
+  onDelete={async () => {
+    try {
+      // ✅ Delete about (set to empty string)
+      await updateProfile(profileUserId!, { about: "" });
+      setUserData((prev: any) =>
+        prev ? { ...prev, about: "" } : null
+      );
+    } catch (error) {
+      console.error("Failed to delete about:", error);
+    }
+  }}
+/>
+
       {/* Experience Section */}
       {/* Experience Section */}
       
@@ -123,21 +137,32 @@ useEffect(() => {
   isCurrentUser={isCurrentUser}
   onAdd={async (newExp) => {
     const updatedList = [...(userData?.experiences || []), newExp];
-          await updateProfile(profileUserId!, { experiences: updatedList });
-          setUserData((prev) =>
-            prev ? { ...prev, experiences: updatedList } : null
-          );
-        }}
-        onEdit={async (id, updatedExp) => {
-          const updatedList = (userData?.experiences || []).map((exp) =>
-            exp._id === id ? { ...updatedExp, _id: exp._id } : exp
-          );
-          await updateProfile(profileUserId!, { experiences: updatedList });
-          setUserData((prev) =>
-            prev ? { ...prev, experiences: updatedList } : null
-          );
-        }}
-      />
+    await updateProfile(profileUserId!, { experiences: updatedList });
+    setUserData((prev) =>
+      prev ? { ...prev, experiences: updatedList } : null
+    );
+  }}
+  onEdit={async (id, updatedExp) => {
+    const updatedList = (userData?.experiences || []).map((exp) =>
+      exp._id === id ? { ...updatedExp, _id: exp._id } : exp
+    );
+    await updateProfile(profileUserId!, { experiences: updatedList });
+    setUserData((prev) =>
+      prev ? { ...prev, experiences: updatedList } : null
+    );
+  }}
+  onDelete={async (id) => {
+    const updatedList = (userData?.experiences || []).filter(
+      (exp) => exp._id !== id
+    );
+    await updateProfile(profileUserId!, { experiences: updatedList });
+    setUserData((prev) =>
+      prev ? { ...prev, experiences: updatedList } : null
+    );
+  }}
+/>
+
+
 
    
   

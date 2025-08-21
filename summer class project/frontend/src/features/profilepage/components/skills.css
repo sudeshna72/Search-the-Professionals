@@ -19,11 +19,11 @@
   cursor: pointer;
   border: none;
   background: none;
-  color: #0a66c2;
+  color: #f3a84d;
 }
 
 .icon-btn.active {
-  color: #1259e6;
+  color: #e6d412;
 }
 
 .icon-btn.small {
@@ -116,7 +116,7 @@
 }
 
 .modal-actions button:last-child {
-  background-color: #0a66c2;
+  background-color: #e27945;
   color: white;
 }
 

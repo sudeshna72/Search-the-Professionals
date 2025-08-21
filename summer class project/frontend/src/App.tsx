@@ -8,15 +8,15 @@ import AuthGuard from './shared/guards/auth.guard'
 import ProfileSetup from './features/profileSetup/profileSetup'
 import Profile from './features/profilepage/profilePage'
 
-function App() {
+/*function App() {
   return (
     <Routes>
-      {/* Public routes */}
+     
       <Route path='/' element={<Login />} />
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
       
-      {/* Protected routes */}
+      
       <Route path='/dashboard' element={<HomePage />} />
       <Route path='/home' element={<HomePage />} />
       <Route path='/profile' element={<Profile/>}/>
@@ -26,12 +26,11 @@ function App() {
   );
 }
 
-export default App;
+export default App; */
 
-/* 
-If you want to use guards later, uncomment this version:
 
-function App() {
+
+export default function App() {
   return (
     <Routes>  
       <Route path='/' element={<Login />} />
@@ -72,4 +71,4 @@ function App() {
     </Routes>
   )
 }
-*/
+

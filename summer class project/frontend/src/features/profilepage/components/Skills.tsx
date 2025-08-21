@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import "./Skills.css";
 
 interface SkillsProps {
@@ -16,52 +15,47 @@ export default function Skills({
   onDeleteSkill,
 }: SkillsProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<"add" | "edit" | null>(null);
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [newSkill, setNewSkill] = useState("");
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState(false);
 
-  const openAddModal = () => {
-    setModalType("add");
-    setNewSkill("");
-    setModalOpen(true);
-  };
-
-  const openEditModal = (skill: string) => {
-    setModalType("edit");
-    setSelectedSkill(skill);
-    setNewSkill(skill);
-    setModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!newSkill.trim()) return;
+  const handleAdd = async () => {
+    if (!newSkill.trim()) {
+      setError("Skill cannot be empty");
+      return;
+    }
     setLoading(true);
-    setError(null);
     try {
-      if (modalType === "add") {
-        await onAddSkill(newSkill.trim());
-      } else if (modalType === "edit" && selectedSkill) {
-        await onDeleteSkill(selectedSkill);
-        await onAddSkill(newSkill.trim());
-      }
-      setModalOpen(false);
+      await onAddSkill(newSkill.trim());
+      setNewSkill("");
     } catch {
-      setError("Something went wrong");
+      setError("Failed to add skill");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedSkill) return;
+  const handleSave = async () => {
+    if (!newSkill.trim() || !selectedSkill) return;
     setLoading(true);
-    setError(null);
     try {
       await onDeleteSkill(selectedSkill);
-      setModalOpen(false);
+      await onAddSkill(newSkill.trim());
+      setNewSkill("");
+      setSelectedSkill(null);
+    } catch {
+      setError("Failed to save skill");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (skill: string) => {
+    setLoading(true);
+    try {
+      await onDeleteSkill(skill);
+      if (selectedSkill === skill) setSelectedSkill(null);
     } catch {
       setError("Failed to delete skill");
     } finally {
@@ -71,40 +65,21 @@ export default function Skills({
 
   return (
     <div className="profile-section">
-      {/* Header */}
       <div className="skills-header">
         <h3>Skills</h3>
         {isCurrentUser && (
-          <div className="header-actions">
-            <button className="icon-btn" onClick={openAddModal}>
-            
-            </button>
-            {skills.length > 0 && (
-              <button
-                className={`icon-btn ${editMode ? "active" : ""}`}
-                onClick={() => setEditMode(!editMode)}
-              >
-                
-              </button>
-            )}
-          </div>
+          <button className="icon-btn manage-btn" onClick={() => setModalOpen(true)}>
+            ⚙️ Manage Skills
+          </button>
         )}
       </div>
 
-      {/* Skills List */}
+      {/* Skills list */}
       {skills.length > 0 ? (
         <ul className="skills-list">
           {skills.map((skill) => (
             <li key={skill} className="skill-item">
               <span>{skill}</span>
-              {isCurrentUser && editMode && (
-                <button
-                  className="icon-btn small"
-                  onClick={() => openEditModal(skill)}
-                >
-                 
-                </button>
-              )}
             </li>
           ))}
         </ul>
@@ -112,37 +87,61 @@ export default function Skills({
         <p>No skills added yet.</p>
       )}
 
-      {/* Modal */}
+      {/* Modal for managing skills */}
       {modalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h4>{modalType === "add" ? "Add Skill" : "Edit Skill"}</h4>
+            <h4>Manage Skills</h4>
 
-            <label className="modal-label">Skill</label>
-            <input
-              type="text"
-              value={newSkill}
-              onChange={(e) => setNewSkill(e.target.value)}
-              placeholder="e.g. JavaScript"
-              disabled={loading}
-            />
+            {/* Add new skill */}
+            <div className="modal-row">
+              <input
+                type="text"
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                placeholder="Enter skill"
+                disabled={loading}
+              />
+              <button onClick={handleAdd} disabled={loading}>
+                ➕ Add
+              </button>
+            </div>
+
+            {/* Edit existing skills */}
+            <ul className="skills-list vertical">
+              {skills.map((skill) => (
+                <li
+                  key={skill}
+                  className={`skill-item ${selectedSkill === skill ? "active" : ""}`}
+                  onClick={() => {
+                    setSelectedSkill(skill);
+                    setNewSkill(skill);
+                  }}
+                >
+                  <span>{skill}</span>
+                  <button
+                    className="delete-btn small"
+                    onClick={() => handleDelete(skill)}
+                    disabled={loading}
+                  >
+                    ❌
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {selectedSkill && (
+              <div className="modal-row">
+                <button onClick={handleSave} disabled={loading}>
+                  💾 Save Changes
+                </button>
+              </div>
+            )}
 
             {error && <p className="error-text">{error}</p>}
 
             <div className="modal-actions">
-              <button onClick={() => setModalOpen(false)}>Cancel</button>
-              {modalType === "edit" && (
-                <button
-                  onClick={handleDelete}
-                  disabled={loading}
-                  className="delete-btn"
-                >
-                  Delete
-                </button>
-              )}
-              <button onClick={handleSave} disabled={loading}>
-                {loading ? "Saving..." : "Save"}
-              </button>
+              <button onClick={() => setModalOpen(false)}>Close</button>
             </div>
           </div>
         </div>

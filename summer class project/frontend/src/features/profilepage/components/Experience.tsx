@@ -9,164 +9,150 @@ interface ExperienceItem {
 }
 
 interface ExperienceProps {
-  experiences: ExperienceItem[];
+  experiences?: ExperienceItem[];
   isCurrentUser: boolean;
   onAdd: (exp: ExperienceItem) => Promise<void>;
   onEdit: (id: string, updated: ExperienceItem) => Promise<void>;
-  onDelete?: (id: string) => Promise<void>; // optional delete handler
+  onDelete: (id: string) => Promise<void>;
 }
 
 export default function Experience({
-  experiences,
+  experiences = [],
   isCurrentUser,
   onAdd,
   onEdit,
   onDelete,
 }: ExperienceProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedExp, setSelectedExp] = useState<ExperienceItem | null>(null);
   const [formData, setFormData] = useState<ExperienceItem>({
     title: "",
     company: "",
     period: "",
   });
-  const [editId, setEditId] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const openAddModal = () => {
-    setFormData({ title: "", company: "", period: "" });
-    setEditId(null);
+  const openModal = (exp?: ExperienceItem) => {
+    if (exp) {
+      setSelectedExp(exp);
+      setFormData(exp);
+    } else {
+      setSelectedExp(null);
+      setFormData({ title: "", company: "", period: "" });
+    }
     setError(null);
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (exp: ExperienceItem) => {
-    setFormData(exp);
-    setEditId(exp._id || null);
-    setError(null);
-    setIsModalOpen(true);
+    setModalOpen(true);
   };
 
   const handleSave = async () => {
     if (!formData.title || !formData.company || !formData.period) {
-      setError("Please fill out all fields.");
+      setError("Please fill out all fields");
       return;
     }
 
-    setIsSaving(true);
+    setLoading(true);
     try {
-      if (editId) {
-        await onEdit(editId, formData);
+      if (selectedExp) {
+        await onEdit(selectedExp._id!, formData);
       } else {
         await onAdd(formData);
       }
-      setIsModalOpen(false);
+      setModalOpen(false);
       setFormData({ title: "", company: "", period: "" });
-      setEditId(null);
-    } catch (err) {
-      setError("Failed to save experience.");
+      setSelectedExp(null);
+    } catch {
+      setError("Failed to save experience");
     } finally {
-      setIsSaving(false);
+      setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (editId && onDelete) {
-      if (window.confirm("Are you sure you want to delete this experience?")) {
-        await onDelete(editId);
-        setIsModalOpen(false);
+    if (selectedExp && window.confirm("Are you sure you want to delete this experience?")) {
+      setLoading(true);
+      try {
+        await onDelete(selectedExp._id!);
+        setModalOpen(false);
         setFormData({ title: "", company: "", period: "" });
-        setEditId(null);
+        setSelectedExp(null);
+      } catch {
+        setError("Failed to delete experience");
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   return (
     <div className="profile-section">
-      <h3>
-        Experience{" "}
+      <div className="experience-header">
+        <h3>Experience</h3>
         {isCurrentUser && (
-          <span
-            onClick={openAddModal}
-            title="Add Experience"
-            className="icon-btn"
-          >
-            
-          </span>
+          <button className="add-btn" onClick={() => openModal()}>
+            +
+          </button>
         )}
-      </h3>
+      </div>
 
       {experiences.length > 0 ? (
-        <ul>
+        <ul className="experience-list">
           {experiences.map((exp) => (
-            <li key={exp._id || exp.title} className="experience-item">
-              <span>
-                <strong>{exp.title}</strong> – {exp.company} ({exp.period})
-              </span>
+            <li key={exp._id || exp.title}>
+              <strong>{exp.title}</strong> – {exp.company} ({exp.period})
               {isCurrentUser && (
-                <span
-                  className="icon-btn"
-                  onClick={() => openEditModal(exp)}
-                  title="Edit Experience"
-                >
-                 
-                </span>
+                <button className="edit-btn" onClick={() => openModal(exp)}>
+                  ✎
+                </button>
               )}
             </li>
           ))}
         </ul>
       ) : (
-        !isCurrentUser && <p>No experiences available</p>
+        <p>No experiences added yet.</p>
       )}
 
       {/* Modal */}
-      {isModalOpen && (
+      {modalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h4>{editId ? "Edit Experience" : "Add Experience"}</h4>
+            <h4>{selectedExp ? "Edit Experience" : "Add Experience"}</h4>
 
+            <label>Job Title</label>
             <input
               type="text"
-              placeholder="Job Title"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              disabled={isSaving}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              disabled={loading}
             />
+
+            <label>Company</label>
             <input
               type="text"
-              placeholder="Company"
               value={formData.company}
-              onChange={(e) =>
-                setFormData({ ...formData, company: e.target.value })
-              }
-              disabled={isSaving}
+              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+              disabled={loading}
             />
+
+            <label>Period</label>
             <input
               type="text"
-              placeholder="Period"
               value={formData.period}
-              onChange={(e) =>
-                setFormData({ ...formData, period: e.target.value })
-              }
-              disabled={isSaving}
+              onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+              disabled={loading}
             />
 
             {error && <p className="error-text">{error}</p>}
 
             <div className="modal-actions">
-              <button onClick={() => setIsModalOpen(false)}>Cancel</button>
-
-              {editId && (
-                <button className="delete-btn" onClick={handleDelete}>
-                  
+              <button onClick={() => setModalOpen(false)}>Cancel</button>
+              {selectedExp && (
+                <button onClick={handleDelete} className="delete-btn" disabled={loading}>
                   Delete
                 </button>
               )}
-
-              <button onClick={handleSave} disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save"}
+              <button onClick={handleSave} disabled={loading}>
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
